@@ -6,7 +6,6 @@ import io
 
 
 st.set_page_config(layout="wide")
-df_agexportacao = pd.read_csv("AG_ExportacaoAssinaturaMensal_FAKE.csv", sep=";", encoding="utf-8-sig")
 
 
 colunas = [
