@@ -1,9 +1,6 @@
 import pandas as pd
 from openpyxl import load_workbook
-import os
 import streamlit as st
-import pygsheets
-from google.oauth2 import service_account
 import numpy as np
 import io
 
