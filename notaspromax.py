@@ -34,6 +34,11 @@ MAP_MATERIAL = {
     188005: 38781,  # GARRAFEIRA 12 G 1L    <- conferir
     188006: 38782,  # GFA VIDRO 1L
     27983: 38719,   # GFA VIDRO 635ML ÂMBAR <- conferir
+    # ---- AMAZONAS ----
+    101490: 38620,  # BARRIL CHOPP 50L
+    138165: 38773,  # GARRAFEIRA 24 G 600ML ANTARCTICA <- conferir
+    30486: 38728,   # GARRAFEIRA 24 G 600ML BRAHMA     <- conferir (pode estar trocado com o 30491)
+    30491: 38731,   # GARRAFEIRA 24 G 600ML SKOL       <- conferir (pode estar trocado com o 30486)
 }
 
 MAP_FABRICA = {
@@ -46,6 +51,9 @@ MAP_FABRICA = {
     "F. A. CLARAS": "F. A. Claras",
     "FILIAL ITAPISSUMA": "F. Pernambuco",  # nota 1132491 (Promax) = F. Pernambuco no extrato
     "CDR PARAIBA": "F. Fonte Mata",         # nota 184526 (Promax) = F. Fonte Mata no extrato
+    # ---- AMAZONAS ----
+    "AMBEV S.A. FILIAL": "F. Manaus",       # saída (operação 9)
+    "AMBEV": "F. Manaus",                   # entrada (operação 302)
 }
 
 colunas_excluir = [
@@ -105,9 +113,16 @@ if arquivos_1 and arquivos_2:
         else:
             df_notas = pd.read_excel(final)
         df_notas.columns = df_notas.columns.str.upper().str.strip()
+        empresa = df_notas["EMPRESA"]  # guardo antes de cortar as colunas (Amazonas = empresa 350)
         df_notas = df_notas[colunas]
+        # operação 9 = SAIDA, 302 (e qualquer outra) = ENTRADA
         df_notas["TIPO DE MOVIMENTAÇÃO"] = np.where(df_notas["OPERACAO ."] == 9, "SAIDA", "ENTRADA")
-        df_notas["REVENDA"] = np.where(df_notas["FILIAL"] == 2, "Capitali/Cruz (CE)", "Capitali/ Itapipoca (CE)")
+        # np.select usa o primeiro valor que bater; se nenhum bater, cai no default (Itapipoca, como era antes)
+        df_notas["REVENDA"] = np.select(
+            [empresa == 350, df_notas["FILIAL"] == 2],
+            ["Amazonia/ Itacoatiara (AM)", "Capitali/Cruz (CE)"],
+            default="Capitali/ Itapipoca (CE)",
+        )
         dfs.append(df_notas)
     df_final_entrada = pd.concat(dfs, ignore_index=True)
 
